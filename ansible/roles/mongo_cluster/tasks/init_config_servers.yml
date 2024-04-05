@@ -1,0 +1,11 @@
+---
+- name: Initialisation des serveurs de configuration MongoDB
+  community.docker.docker_container_exec:
+    container: "{{ item }}"
+    command: >
+      mongo --eval 'rs.initiate({_id: "{{ config_replica_set_name }}", configsvr: true,
+      members: [{ _id : 0, host : "{{ config_servers[0] }}" },
+      { _id : 1, host : "{{ config_servers[1] }}" },
+      { _id : 2, host : "{{ config_servers[2] }}" }]})'
+  loop: "{{ config_servers }}"
+  run_once: true

@@ -1,0 +1,4 @@
+---
+- include_tasks: init_config_servers.yml
+- include_tasks: init_shards.yml
+- include_tasks: add_shards.yml

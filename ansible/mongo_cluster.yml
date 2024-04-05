@@ -1,0 +1,7 @@
+---
+- name: Configurer le cluster MongoDB sharded
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  roles:
+    - mongo_cluster

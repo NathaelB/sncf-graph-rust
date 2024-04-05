@@ -1,0 +1,7 @@
+---
+- name: Initialisation des shards
+  community.docker.docker_container_exec:
+    container: "{{ item.name }}"
+    command: >
+      mongo --eval 'rs.initiate({_id: "{{ item.replica_set }}", members: [{ _id: 0, host: "{{ item.name }}" }]})'
+  loop: "{{ shards }}"

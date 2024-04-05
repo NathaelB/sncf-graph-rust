@@ -1,0 +1,16 @@
+config_replica_set_name: configReplSet
+config_servers:
+  - config1
+  - config2
+  - config3
+
+shards:
+  - name: shard1-1
+    replica_set: shard1ReplSet
+  - name: shard2-1
+    replica_set: shard2ReplSet
+  - name: shard3-1
+    replica_set: shard3ReplSet
+# Ajouter plus de shards ici au besoin
+
+mongos_container: mongos

@@ -1,0 +1,6 @@
+---
+- name: Ajout des shards au cluster via mongos
+  community.docker.docker_container_exec:
+    container: "{{ mongos_container }}"
+    command: mongo --eval 'sh.addShard("{{ item.replica_set }}/{{ item.name }}:27017");'
+  loop: "{{ shards }}"

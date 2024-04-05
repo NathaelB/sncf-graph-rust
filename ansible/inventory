@@ -1,0 +1,13 @@
+[config_containers]
+config1
+config2
+config3
+
+[shard_containers]
+shard1-1
+shard2-1
+shard3-1
+# Ajoutez d'autres shards ici selon vos besoins
+
+[mongos_containers]
+mongos

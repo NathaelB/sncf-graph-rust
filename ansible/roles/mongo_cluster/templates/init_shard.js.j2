@@ -1,0 +1,4 @@
+rs.initiate({
+  _id: "{{ item.replica_set }}",
+  members: [{ _id: 0, host: "{{ item.name }}" }]
+})
