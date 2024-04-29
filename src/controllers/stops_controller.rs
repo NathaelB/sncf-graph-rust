@@ -1,6 +1,7 @@
 use std::collections::{HashMap, HashSet};
 use actix_web::{web, HttpResponse, Responder, HttpRequest, get};
 use futures::TryStreamExt;
+use juniper::GraphQLObject;
 use mongodb::bson::doc;
 use petgraph::graph::{DiGraph, NodeIndex};
 use petgraph::prelude::EdgeRef;
@@ -23,12 +24,25 @@ struct EdgeData {
     trips: HashSet<String>,
 }
 
+struct Edges {
+    //edges: Vec<Trip>,
+
+}
+
+
 #[derive(Serialize)]
 struct GraphData {
     nodes: Vec<NodeData>,
     edges: Vec<EdgeData>
 }
 
+pub fn init_routes(cfg: &mut web::ServiceConfig) {
+    cfg.service(index);
+    cfg.service(get_stop);
+    cfg.service(test);
+}
+
+#[get("/stops")]
 pub async fn index(
     stop_service: web::Data<StopService>,
     web::Query(info): web::Query<QueryParams>,
@@ -75,9 +89,10 @@ pub async fn test(
     ).await.unwrap();
 
     let data: Vec<Stop> = cursor.try_collect().await.unwrap();
-    let stop_times = stop_time_service.find_all().await.unwrap();
+    let stop_ids: Vec<String> = data.iter().map(|stop| stop.stop_id.clone()).collect();
+    let stop_times = stop_time_service.find_by_stop_ids(&stop_ids).await.unwrap();
 
-    let mut graph: DiGraph<String, HashSet<String>> = DiGraph::new();
+    /*let mut graph: DiGraph<String, HashSet<String>> = DiGraph::new();
     let mut stop_ids_to_node_index: HashMap<String, NodeIndex> = HashMap::new();
 
     for stop in data.iter() {
@@ -159,6 +174,12 @@ pub async fn test(
     HttpResponse::Ok().json(serde_json::json!({
         "status": "ok",
         "graph": graph_data,
+        "stop_count": data.len(),
+        "stop_times_count": stop_times.len(),
+    }))*/
+
+    HttpResponse::Ok().json(serde_json::json!({
+        "status": "ok",
         "stop_count": data.len(),
         "stop_times_count": stop_times.len(),
     }))
