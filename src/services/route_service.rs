@@ -22,4 +22,9 @@ impl RouteService {
         let route = self.collection.find_one(filter, None).await?;
         Ok(route)
     }
+
+    pub async fn count_routes(&self) -> Result<u64, mongodb::error::Error> {
+        let count = self.collection.count_documents(None, None).await?;
+        Ok(count)
+    }
 }
