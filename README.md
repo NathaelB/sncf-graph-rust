@@ -21,10 +21,22 @@ $ cd sncf-graph-rust
 $ docker compose up -d
 ```
 
+3. Use ansible for config cluster mongodb
+```bash
+$ ansible-playbook ./ansible/mongo_cluster.yml
+```
 3. Run app
 ```bash
 $ cargo run
 ```
+
+
+## API Documentation
+| Endpoint                   | Méthode | Description                                                       | Paramètres de Requête | Réponse                      |
+|----------------------------|---------|-------------------------------------------------------------------|-----------------------|------------------------------| 
+| `/routes`                  | GET     | Récupère l'ensemble des routes                                    | - page<br>- size<br>  | `200 OK`                     |
+| `/routes/{route_id}/trips` | GET     | Récupère l'ensemble des trajets contenants ses arrêts d'une route | - page<br>- size<br>  | `200 OK`<br> `404 Not Found` |
+| `/routes/trips`            | GET     | Récupère l'ensemble des routes avec son nombre de trajets         | - page<br>- size<br>  | `200 OK`<br> `404 Not Found` |
 
 ## License
 

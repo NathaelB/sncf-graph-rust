@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use crate::models::stop_time::StopTime;
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Trip {
@@ -27,4 +28,11 @@ pub struct RouteTripsCount {
     route_long_name: String,
     direction_id: String,
     number_of_trips: i32,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct TripTransit {
+    pub route_id: String,
+    pub trip_headsign: String,
+    pub stops_time: Vec<StopTime>
 }

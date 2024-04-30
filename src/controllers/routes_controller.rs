@@ -2,6 +2,7 @@ use std::io::Cursor;
 use actix_multipart::Multipart;
 use actix_web::{get, HttpResponse, post, Responder, web};
 use futures::{AsyncWriteExt, StreamExt, TryStreamExt};
+use crate::controllers::stops_controller::QueryParams;
 use crate::models::route::Route;
 use crate::services::route_service::RouteService;
 use crate::services::trip_service::TripService;
@@ -14,14 +15,42 @@ pub async fn index(
 }*/
 
 
+pub fn init_routes(cfg: &mut web::ServiceConfig) {
+    cfg.service(get_trips_count_by_route);
+    cfg.service(get_trips_details_by_route_id);
+    cfg.service(upload);
+}
+
 #[get("/routes/trips")]
 pub async fn get_trips_count_by_route(
     trip_service: web::Data<TripService>,
 ) -> impl Responder {
-    match trip_service.cout_trips_by_route_and_direction().await {
+    match trip_service.count_trips_by_route_and_direction().await {
         Ok(response) => HttpResponse::Ok().json(response),
         Err(_) => HttpResponse::InternalServerError().finish(),
     }
+}
+
+#[get("/routes/{route_id}/trips")]
+pub async fn get_trips_details_by_route_id(
+    trip_service: web::Data<TripService>,
+    info: web::Query<QueryParams>,
+    route_id: web::Path<String>,
+) -> impl Responder {
+    let url = format!("/routes/{}/trips", &route_id.as_str());
+    if let Ok(len) = trip_service.count_trips(&route_id).await {
+        match trip_service.get_trips_with_stops_sorted(
+            route_id.as_str(),
+            len as u64, info.page.unwrap_or(1),
+            info.size.unwrap_or(10), url
+        ).await {
+            Ok(response) => HttpResponse::Ok().json(response),
+            Err(_) => HttpResponse::InternalServerError().finish(),
+        }
+    } else {
+        HttpResponse::InternalServerError().finish()
+    }
+
 }
 
 #[post("/routes/csv")]
