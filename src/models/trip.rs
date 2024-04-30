@@ -22,7 +22,7 @@ pub struct TripDetails {
     departure_time: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct RouteTripsCount {
     route_short_name: String,
     route_long_name: String,
