@@ -1,3 +1,4 @@
+use std::fmt::format;
 use std::io::Cursor;
 use actix_multipart::Multipart;
 use actix_web::{get, HttpResponse, post, Responder, web};
@@ -24,11 +25,22 @@ pub fn init_routes(cfg: &mut web::ServiceConfig) {
 #[get("/routes/trips")]
 pub async fn get_trips_count_by_route(
     trip_service: web::Data<TripService>,
+    info: web::Query<QueryParams>,
+    route_service: web::Data<RouteService>
 ) -> impl Responder {
-    match trip_service.count_trips_by_route_and_direction().await {
-        Ok(response) => HttpResponse::Ok().json(response),
-        Err(_) => HttpResponse::InternalServerError().finish(),
+    let url = "/routes/trips".to_string();
+    if let Ok(len) = route_service.count_routes().await {
+        match trip_service.count_trips_by_route_and_direction(
+            len as u64, info.page.unwrap_or(1),
+            info.size.unwrap_or(10), url
+        ).await {
+            Ok(response) => HttpResponse::Ok().json(response),
+            Err(_) => HttpResponse::InternalServerError().finish(),
+        }
+    } else {
+        HttpResponse::InternalServerError().finish()
     }
+
 }
 
 #[get("/routes/{route_id}/trips")]

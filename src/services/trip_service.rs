@@ -46,7 +46,9 @@ impl TripService {
         Ok(results)
     }
 
-    pub async fn count_trips_by_route_and_direction(&self) -> mongodb::error::Result<Vec<RouteTripsCount>> {
+    pub async fn count_trips_by_route_and_direction(&self, total: u64, page: i64, size: i64, url: String) -> Result<PaginationResponse<RouteTripsCount>, mongodb::error::Error> {
+        let skip = (page - 1) * size;
+
         let pipeline = vec![
             doc! { "$group": { "_id": { "route_id": "$route_id", "direction_id": "$direction_id" }, "number_of_trips": { "$sum": 1 } } },
             doc! { "$lookup": { "from": "routes", "localField": "_id.route_id", "foreignField": "route_id", "as": "route_details" } },
@@ -57,7 +59,9 @@ impl TripService {
                 "direction_id": "$_id.direction_id",
                 "number_of_trips": 1
             }},
-            doc! { "$sort": { "number_of_trips": -1 } }
+            doc! { "$sort": { "number_of_trips": -1 } },
+            doc! { "$limit": size },
+            doc! { "$skip": skip }
         ];
 
         let mut cursor = self.collection.aggregate(pipeline, None).await?;
@@ -68,7 +72,8 @@ impl TripService {
             results.push(route_trips_count);
         }
 
-        Ok(results)
+        let builder = PaginationBuilder::new(results, total, page, size, url);
+        Ok(builder.build_response())
     }
 
     pub async fn count_trips(&self, route_id: &str) -> mongodb::error::Result<i32> {
