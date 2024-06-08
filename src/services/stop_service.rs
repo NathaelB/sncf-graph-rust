@@ -1,21 +1,26 @@
+use std::sync::Arc;
 use actix_web::{web};
 use futures::TryStreamExt;
 use crate::models::stop::Stop;
 use crate::pagination::{PaginationBuilder, PaginationResponse};
 
-use mongodb::{
-   bson::{extjson::de::Error, oid::ObjectId},
-   Collection
-};
+use mongodb::{bson::{extjson::de::Error, oid::ObjectId}, Client, Collection};
 
+#[derive(Debug, Clone)]
 pub struct StopService {
-   pub collection: web::Data<Collection<Stop>>
+   pub collection: Collection<Stop>
 }
 
 
 
 
+
 impl StopService {
+   pub fn new(client: Arc<Client>) -> Self {
+      StopService {
+         collection: client.database("lirmm").collection("stops")
+      }
+   }
    pub async fn find_all(&self, page: i64, size: i64, base_url: &str) -> Result<PaginationResponse<Stop>, mongodb::error::Error> {
       let total = self.collection.count_documents(None, None).await?;
 

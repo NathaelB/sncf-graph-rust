@@ -1,4 +1,5 @@
 use std::collections::{HashMap, HashSet};
+use std::sync::Arc;
 use actix_web::{web, HttpResponse, Responder, HttpRequest, get};
 use futures::TryStreamExt;
 use juniper::GraphQLObject;
@@ -24,10 +25,7 @@ struct EdgeData {
     trips: HashSet<String>,
 }
 
-struct Edges {
-    //edges: Vec<Trip>,
 
-}
 
 
 #[derive(Serialize)]
@@ -44,7 +42,7 @@ pub fn init_routes(cfg: &mut web::ServiceConfig) {
 
 #[get("/stops")]
 pub async fn index(
-    stop_service: web::Data<StopService>,
+    stop_service: web::Data<Arc<StopService>>,
     web::Query(info): web::Query<QueryParams>,
     req: HttpRequest,
 ) -> impl Responder {
@@ -59,7 +57,7 @@ pub async fn index(
 
 #[get("/stops/{id}")]
 pub async fn get_stop(
-    stop_service: web::Data<StopService>,
+    stop_service: web::Data<Arc<StopService>>,
     id: web::Path<String>
 ) -> impl Responder {
     match stop_service.find_by_id(&id).await {
@@ -72,7 +70,7 @@ pub async fn get_stop(
 
 #[get("/test")]
 pub async fn test(
-    stop_service: web::Data<StopService>,
+    stop_service: web::Data<Arc<StopService>>,
     stop_time_service: web::Data<StopTimeService>
 ) -> impl Responder {
     let lat_min = 42.5;

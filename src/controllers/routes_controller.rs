@@ -40,7 +40,17 @@ pub async fn get_trips_count_by_route(
     } else {
         HttpResponse::InternalServerError().finish()
     }
+}
 
+pub async fn get_route_by_id(
+    route_service: web::Data<RouteService>,
+    route_id: web::Path<String>
+) -> impl Responder {
+    match route_service.find_by_id(&route_id).await {
+        Ok(Some(route)) => HttpResponse::Ok().json(route),
+        Ok(None) => HttpResponse::NotFound().finish(),
+        Err(_) => HttpResponse::InternalServerError().finish()
+    }
 }
 
 #[get("/routes/{route_id}/trips")]
